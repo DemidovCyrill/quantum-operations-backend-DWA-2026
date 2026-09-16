@@ -1,15 +1,10 @@
 from fastapi import FastAPI
 import uvicorn
+from fastapi.staticfiles import StaticFiles
 from api.handlers import router
 
-
-app = FastAPI(title="Hotel Catalog App")
-
-from fastapi.staticfiles import StaticFiles
-
-# Добавить перед app.include_router(router)
+app = FastAPI(title="Quantum Gates App")
 app.mount("/static", StaticFiles(directory="static"), name="static")
-# Подключаем наши роуты
 app.include_router(router)
 
 if __name__ == "__main__":

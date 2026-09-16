@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ gate.title }}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="app-body feed-body">
+
+    <header class="app-header">
+        <a href="/gates" class="logo-link">
+            <img src="/static/img/logo.png" alt="Quantum" class="logo">
+        </a>
+        <h1 class="app-title">{{ gate.title }}</h1>
+    </header>
+
+    <main class="feed-layout">
+        <div class="vibes-container">
+
+            <video autoplay loop muted playsinline class="vibes-video">
+                <source src="{{ media_prefix }}/{{ gate.video_key }}" type="video/mp4">
+            </video>
+
+            <div class="vibes-side">
+                <div class="param-badge">
+                    <span class="param-label">X</span>
+                    <span class="param-value">{{ gate.angle_x }}°</span>
+                </div>
+                <div class="param-badge">
+                    <span class="param-label">Y</span>
+                    <span class="param-value">{{ gate.angle_y }}°</span>
+                </div>
+
+                <!-- Кнопка лайка: переключает состояние через GET + редирект -->
+                <a href="/gates/{{ gate.id }}/like-toggle"
+                   class="like-badge {% if is_liked %}like-active{% endif %}"
+                   title="{% if is_liked %}Убрать лайк{% else %}Поставить лайк{% endif %}">
+                    <span class="like-icon">{% if is_liked %}♥{% else %}♡{% endif %}</span>
+                    <span class="like-count">{{ likes_count }}</span>
+                </a>
+
+                <a href="/gates/{{ gate.id }}?next=true" class="next-btn">▶</a>
+            </div>
+
+            <div class="vibes-bottom">
+                <input type="checkbox" id="expand-{{ gate.id }}" class="expand-toggle">
+                <label for="expand-{{ gate.id }}" class="description-block">
+                    <strong>{{ gate.title }}</strong>
+                    <p class="description-text">{{ gate.description }}</p>
+                    <span class="more-link">Ещё</span>
+                    <span class="less-link">Меньше</span>
+                </label>
+            </div>
+
+        </div>
+    </main>
+
+    <nav class="tabbar">
+        <a href="/gates/1" class="tab tab-active">Лента</a>
+        <a href="/add" class="tab">Добавить</a>
+        <a href="/gates" class="tab">Плитка</a>
+    </nav>
+
+</body>
+</html>

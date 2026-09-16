@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Плитка гейтов</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="app-body">
+
+    <header class="app-header">
+        <a href="/gates" class="logo-link">
+            <img src="/static/img/logo.png" alt="Quantum Gates" class="logo">
+        </a>
+        <h1 class="app-title">Гейты</h1>
+    </header>
+
+    <main class="page-content">
+
+        <!-- Фильтр: текст + двойные ползунки X и Y -->
+        <form method="get" action="/gates" class="filter-form">
+
+            <input type="text" name="q" value="{{ q }}"
+                   placeholder="Поиск по названию гейта…"
+                   class="field-input search-input">
+
+            <!-- Ползунок X: от и до -->
+            <div class="dual-slider-block">
+                <div class="dual-slider-label">
+                    <span>Угол X:</span>
+                    <span><b>{{ angle_x_min }}</b>° — <b>{{ angle_x_max }}</b>°</span>
+                </div>
+                <div class="dual-slider">
+                    <input type="range" name="angle_x_min" min="0" max="180"
+                           value="{{ angle_x_min }}" class="slider slider-min">
+                    <input type="range" name="angle_x_max" min="0" max="180"
+                           value="{{ angle_x_max }}" class="slider slider-max">
+                </div>
+            </div>
+
+            <!-- Ползунок Y: от и до -->
+            <div class="dual-slider-block">
+                <div class="dual-slider-label">
+                    <span>Угол Y:</span>
+                    <span><b>{{ angle_y_min }}</b>° — <b>{{ angle_y_max }}</b>°</span>
+                </div>
+                <div class="dual-slider">
+                    <input type="range" name="angle_y_min" min="0" max="180"
+                           value="{{ angle_y_min }}" class="slider slider-min">
+                    <input type="range" name="angle_y_max" min="0" max="180"
+                           value="{{ angle_y_max }}" class="slider slider-max">
+                </div>
+            </div>
+
+            <button type="submit" class="btn-primary">Применить</button>
+        </form>
+
+        <!-- Плитка в 2 столбца -->
+        <ul class="grid">
+            {% for gate in gates %}
+            <li class="card">
+                <img src="{{ media_prefix }}/{{ gate.image_key }}"
+                     alt="{{ gate.title }}" class="card-image">
+                <div class="card-body">
+                    <h2 class="card-title">{{ gate.title }}</h2>
+                    <p class="card-desc">{{ gate.description }}</p>
+                    <a href="/gates/{{ gate.id }}" class="card-cta">
+                        Добавить в алгоритм <span class="cta-arrow">→</span>
+                    </a>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+
+        {% if not gates %}
+        <p class="empty-msg">Ничего не найдено. Измените фильтр.</p>
+        {% endif %}
+
+    </main>
+
+    <nav class="tabbar">
+        <a href="/gates/1" class="tab">Лента</a>
+        <a href="/add" class="tab">Добавить</a>
+        <a href="/gates" class="tab tab-active">Плитка</a>
+    </nav>
+
+</body>
+</html>
