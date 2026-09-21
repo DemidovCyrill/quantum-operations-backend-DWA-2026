@@ -17,14 +17,12 @@
 
     <main class="page-content">
 
-        <!-- Фильтр: текст + двойные ползунки X и Y -->
         <form method="get" action="/gates" class="filter-form">
 
             <input type="text" name="q" value="{{ q }}"
                    placeholder="Поиск по названию гейта…"
                    class="field-input search-input">
 
-            <!-- Ползунок X: от и до -->
             <div class="dual-slider-block">
                 <div class="dual-slider-label">
                     <span>Угол X:</span>
@@ -38,7 +36,6 @@
                 </div>
             </div>
 
-            <!-- Ползунок Y: от и до -->
             <div class="dual-slider-block">
                 <div class="dual-slider-label">
                     <span>Угол Y:</span>
@@ -55,18 +52,22 @@
             <button type="submit" class="btn-primary">Применить</button>
         </form>
 
-        <!-- Плитка в 2 столбца -->
         <ul class="grid">
             {% for gate in gates %}
             <li class="card">
-                <img src="{{ media_prefix }}/{{ gate.image_key }}"
+                <img src="{{ media_prefix }}/{{ gate.image_url }}"
                      alt="{{ gate.title }}" class="card-image">
                 <div class="card-body">
                     <h2 class="card-title">{{ gate.title }}</h2>
-                    <p class="card-desc">{{ gate.description }}</p>
+                    <p class="card-desc">{{ gate.summary or 'Без описания' }}</p>
                     <a href="/gates/{{ gate.id }}" class="card-cta">
                         Добавить в алгоритм <span class="cta-arrow">→</span>
                     </a>
+
+                    <form method="post" action="/gates/{{ gate.id }}/delete"
+                          class="delete-form">
+                        <button type="submit" class="btn-delete">✕ Удалить</button>
+                    </form>
                 </div>
             </li>
             {% endfor %}

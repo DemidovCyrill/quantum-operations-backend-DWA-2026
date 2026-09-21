@@ -19,7 +19,7 @@
         <div class="vibes-container">
 
             <video autoplay loop muted playsinline class="vibes-video">
-                <source src="{{ media_prefix }}/{{ gate.video_key }}" type="video/mp4">
+                <source src="{{ media_prefix }}/{{ gate.video_url }}" type="video/mp4">
             </video>
 
             <div class="vibes-side">
@@ -31,15 +31,10 @@
                     <span class="param-label">Y</span>
                     <span class="param-value">{{ gate.angle_y }}°</span>
                 </div>
-
-                <!-- Кнопка лайка: переключает состояние через GET + редирект -->
-                <a href="/gates/{{ gate.id }}/like-toggle"
-                   class="like-badge {% if is_liked %}like-active{% endif %}"
-                   title="{% if is_liked %}Убрать лайк{% else %}Поставить лайк{% endif %}">
-                    <span class="like-icon">{% if is_liked %}♥{% else %}♡{% endif %}</span>
+                <div class="like-badge">
+                    <span class="like-icon">♥</span>
                     <span class="like-count">{{ likes_count }}</span>
-                </a>
-
+                </div>
                 <a href="/gates/{{ gate.id }}?next=true" class="next-btn">▶</a>
             </div>
 
@@ -47,7 +42,7 @@
                 <input type="checkbox" id="expand-{{ gate.id }}" class="expand-toggle">
                 <label for="expand-{{ gate.id }}" class="description-block">
                     <strong>{{ gate.title }}</strong>
-                    <p class="description-text">{{ gate.description }}</p>
+                    <p class="description-text">{{ gate.summary or '' }}</p>
                     <span class="more-link">Ещё</span>
                     <span class="less-link">Меньше</span>
                 </label>

@@ -462,3 +462,19 @@ html, body {
 .field-input:focus { border-color: var(--accent); }
 
 textarea.field-input { resize: vertical; }
+
+/* Кнопка удаления */
+.btn-delete {
+    background: transparent;
+    border: 1px solid #e30613;
+    color: #e30613;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: background .15s, color .15s;
+}
+.btn-delete:hover { background: #e30613; color: #fff; }
+.delete-form { margin: 0; }

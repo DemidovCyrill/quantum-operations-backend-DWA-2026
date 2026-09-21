@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 import uvicorn
 from fastapi.staticfiles import StaticFiles
+import models  # noqa: F401
+
 from api.handlers import router
 
 app = FastAPI(title="Quantum Gates App")
