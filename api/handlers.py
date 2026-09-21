@@ -101,7 +101,6 @@ def feed_page(request: Request, gate_id: int, next: bool = False):
     )
 
 
-# --- GET №2.5: переключение лайка (учебный компромисс) ---
 @router.get("/gates/{gate_id}/like-toggle")
 def like_toggle(gate_id: int):
     """

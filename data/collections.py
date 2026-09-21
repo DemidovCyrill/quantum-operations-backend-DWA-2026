@@ -1,8 +1,3 @@
-# Коллекция услуг (квантовых гейтов).
-# Поля: id, title, description, angle_x, angle_y, image_key, video_key,
-#        status ("draft" | "published" | "deleted"), likes (список ID пользователей)
-
-# ID текущего пользователя (учебное упрощение: у нас один "залогиненный" юзер)
 CURRENT_USER_ID = 999
 
 gates = [
@@ -44,7 +39,7 @@ gates = [
         "angle_x": 180,
         "angle_y": 180,
         "image_key": "cnot.png",
-        "video_key": "cnat.mp4",
+        "video_key": "avatar.mp4",
         "status": "published",
         "likes": [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24],
     },
@@ -58,7 +53,7 @@ gates = [
         "angle_x": 0,
         "angle_y": 90,
         "image_key": "phase_s.png",
-        "video_key": "video.mp4",
+        "video_key": "phase_s.MP4",
         "status": "published",
         "likes": [1, 2, 4, 8],
     },
@@ -72,7 +67,7 @@ gates = [
         "angle_x": 0,
         "angle_y": 180,
         "image_key": "pauli_z.png",
-        "video_key": "pauli_z.mp4",
+        "video_key": "avatar.mp4",
         "status": "published",
         "likes": [3, 6, 9, 12, 15],
     },
@@ -89,3 +84,6 @@ gates = [
         "likes": [],
     },
 ]
+
+
+
