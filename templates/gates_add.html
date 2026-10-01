@@ -9,7 +9,7 @@
 <body class="app-body">
 
     <header class="app-header">
-        <a href="/gates" class="logo-link">
+        <a href="/gates/grid" class="logo-link">
             <img src="/static/img/logo.png" alt="Quantum" class="logo">
         </a>
         <h1 class="app-title">{{ "Публикация" if gate else "Новая заявка" }}</h1>
@@ -19,20 +19,16 @@
 
         {% if not gate %}
         <!-- Шаг 1: черновика нет — форма создания -->
-        <form method="post" action="/gates" class="add-form">
+        <form method="post" action="/gates/add" class="add-form" enctype="multipart/form-data">
             <section class="form-section">
-                <h2 class="section-title">Шаг 1. Создание черновика</h2>
-
                 <label class="field-label" for="title">Название</label>
                 <input type="text" id="title" name="title" required class="field-input">
 
-                <label class="field-label" for="image_url">Фото (имя файла в MinIO)</label>
-                <input type="text" id="image_url" name="image_url"
-                       placeholder="pauli_x.png" class="field-input">
+                <label class="field-label" for="image">Фото</label>
+                <input type="file" id="image" name="image" accept="image/*" class="field-input">
 
-                <label class="field-label" for="video_url">Видео (имя файла в MinIO)</label>
-                <input type="text" id="video_url" name="video_url"
-                       placeholder="pauli_x.mp4" class="field-input">
+                <label class="field-label" for="video">Видео</label>
+                <input type="file" id="video" name="video" accept="video/*" class="field-input">
 
                 <button type="submit" class="btn-primary">Далее</button>
             </section>
@@ -40,12 +36,13 @@
 
         {% else %}
         <!-- Шаг 2: черновик есть — форма публикации -->
-        <form method="post" action="/gates/{{ gate.id }}/publish" class="add-form">
+        <form method="post" action="/gates/feed/{{ gate.id }}/publish" class="add-form" enctype="multipart/form-data">
             <section class="form-section">
-                <h2 class="section-title">Шаг 2. Публикация</h2>
+                <label class="field-label" for="image">Фото</label>
+                <input type="file" id="image" name="image" accept="image/*" class="field-input">
 
-                <label class="field-label">Название</label>
-                <input type="text" value="{{ gate.title }}" class="field-input" disabled>
+                <label class="field-label" for="video">Видео</label>
+                <input type="file" id="video" name="video" accept="video/*" class="field-input">
 
                 <label class="field-label" for="summary">Краткое описание</label>
                 <textarea id="summary" name="summary" rows="4" required
@@ -67,9 +64,9 @@
     </main>
 
     <nav class="tabbar">
-        <a href="/gates/3" class="tab">Лента</a>
-        <a href="/add" class="tab tab-active">Добавить</a>
-        <a href="/gates" class="tab">Плитка</a>
+        <a href="/gates/feed/first" class="tab">Лента</a>
+        <a href="/gates/add" class="tab tab-active">Добавить</a>
+        <a href="/gates/grid" class="tab">Плитка</a>
     </nav>
 
 </body>

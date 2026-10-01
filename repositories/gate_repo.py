@@ -28,15 +28,26 @@ async def get_published(db: AsyncSession, gate_id: int):
     return result.scalar_one_or_none()
 
 
-async def next_published_id(db: AsyncSession, gate_id: int):
-    stmt = select(Gate.id).where(Gate.status == "published").order_by(Gate.id)
+async def first_published_id(db: AsyncSession):
+    stmt = select(func.min(Gate.id)).where(Gate.status == "published")
     result = await db.execute(stmt)
-    ids = [row[0] for row in result.all()]
-    if not ids:
-        return None
-    if gate_id not in ids:
-        return ids[0]
-    return ids[(ids.index(gate_id) + 1) % len(ids)]
+    return result.scalar_one_or_none()
+
+
+async def next_published_id(db: AsyncSession, gate_id: int):
+    stmt = select(func.min(Gate.id)).where(
+        Gate.id > gate_id,
+        Gate.status == "published"
+    )
+    result = await db.execute(stmt)
+    next_id = result.scalar_one_or_none()
+
+    if next_id is None:
+        stmt = select(func.min(Gate.id)).where(Gate.status == "published")
+        result = await db.execute(stmt)
+        next_id = result.scalar_one_or_none()
+    
+    return next_id
 
 
 async def likes_count(db: AsyncSession, gate_id: int) -> int:
@@ -52,12 +63,12 @@ async def get_draft_for_user(db: AsyncSession, user_id: int):
 
 
 async def create_draft(db: AsyncSession, user_id: int, title: str,
-                       image_url: str | None, video_url: str | None) -> Gate:
+                       image_url: str, video_url: str) -> Gate:
     gate = Gate(
         title=title,
         status="draft",
-        image_url=image_url or None,
-        video_url=video_url or None,
+        image_url=image_url,
+        video_url=video_url,
         creator_id=user_id,
         angle_x=0,
         angle_y=0,
@@ -69,7 +80,7 @@ async def create_draft(db: AsyncSession, user_id: int, title: str,
 
 
 async def publish_draft(db: AsyncSession, gate_id: int, summary: str,
-                        angle_x: int, angle_y: int) -> Gate | None:
+                        angle_x: int, angle_y: int, image_url: str, video_url: str) -> Gate | None:
     stmt = select(Gate).where(Gate.id == gate_id, Gate.status == "draft")
     result = await db.execute(stmt)
     gate = result.scalar_one_or_none()
@@ -78,6 +89,8 @@ async def publish_draft(db: AsyncSession, gate_id: int, summary: str,
     gate.summary = summary
     gate.angle_x = angle_x
     gate.angle_y = angle_y
+    gate.image_url = image_url
+    gate.video_url = video_url
     gate.status = "published"
     gate.formed_at = datetime.utcnow()
     await db.commit()

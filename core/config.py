@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     DB_NAME: str
 
     MINIO_URL: str = "http://127.0.0.1:9000/quantum-operations"
-    USE_MINIO: bool = True
+    USE_MINIO: bool = False
     CURRENT_USER_ID: int = 1
 
     @property

@@ -9,7 +9,7 @@
 <body class="app-body feed-body">
 
     <header class="app-header">
-        <a href="/gates" class="logo-link">
+        <a href="/gates/grid" class="logo-link">
             <img src="/static/img/logo.png" alt="Quantum" class="logo">
         </a>
         <h1 class="app-title">{{ gate.title }}</h1>
@@ -35,7 +35,7 @@
                     <span class="like-icon">♥</span>
                     <span class="like-count">{{ likes_count }}</span>
                 </div>
-                <a href="/gates/{{ gate.id }}?next=true" class="next-btn">▶</a>
+                <a href="/gates/feed/{{ gate.id }}?next=true" class="next-btn">▶</a>
             </div>
 
             <div class="vibes-bottom">
@@ -52,10 +52,26 @@
     </main>
 
     <nav class="tabbar">
-        <a href="/gates/1" class="tab tab-active">Лента</a>
-        <a href="/add" class="tab">Добавить</a>
-        <a href="/gates" class="tab">Плитка</a>
+        <a href="/gates/feed/first" class="tab tab-active" onclick="saveCurrentGate({{ gate.id }})">Лента</a>
+        <a href="/gates/add" class="tab">Добавить</a>
+        <a href="/gates/grid" class="tab">Плитка</a>
     </nav>
+
+    <script>
+        // Сохраняем текущий гейт в localStorage
+        function saveCurrentGate(gateId) {
+            localStorage.setItem('lastGateId', gateId);
+        }
+
+        // При загрузке страницы проверяем, есть ли сохранённый гейт
+        window.addEventListener('DOMContentLoaded', function() {
+            const lastGateId = localStorage.getItem('lastGateId');
+            if (lastGateId) {
+                // Если есть сохранённый гейт, перенаправляем на него
+                window.location.href = '/gates/feed/' + lastGateId;
+            }
+        });
+    </script>
 
 </body>
 </html>

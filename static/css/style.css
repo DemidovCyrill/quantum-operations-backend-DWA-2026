@@ -60,6 +60,8 @@ html, body {
     position: sticky;
     top: 0;
     z-index: 10;
+    max-width: 400px;
+    margin: 0 auto;
 }
 
 .logo { height: 32px; display: block; }
@@ -75,7 +77,7 @@ html, body {
 .page-content {
     flex: 1;
     padding: 16px;
-    max-width: 600px;
+    max-width: 400px;
     width: 100%;
     margin: 0 auto;
 }
@@ -84,7 +86,11 @@ html, body {
 
 .tabbar {
     position: fixed;
-    left: 0; right: 0; bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 0;
+    width: 100%;
+    max-width: 400px;
     height: var(--tabbar-h);
     background: var(--panel);
     border-top: 1px solid #1a1a1a;
@@ -297,7 +303,7 @@ html, body {
 .vibes-container {
     position: relative;
     width: 100%;
-    max-width: 420px;
+    max-width: 400px;
     aspect-ratio: 9 / 16;
     background: #000;
     border-radius: var(--radius);
@@ -465,16 +471,17 @@ textarea.field-input { resize: vertical; }
 
 /* Кнопка удаления */
 .btn-delete {
-    background: transparent;
-    border: 1px solid #e30613;
-    color: #e30613;
-    padding: 6px 10px;
+    background: var(--accent);
+    color: #000;
+    border: none;
+    padding: 12px 20px;
     border-radius: 6px;
-    font-size: 12px;
     font-weight: 700;
+    font-size: 15px;
     cursor: pointer;
     margin-top: 8px;
-    transition: background .15s, color .15s;
+    transition: background .15s;
+    width: 100%;
 }
-.btn-delete:hover { background: #e30613; color: #fff; }
+.btn-delete:hover { background: var(--accent-2); }
 .delete-form { margin: 0; }

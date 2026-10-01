@@ -9,7 +9,7 @@
 <body class="app-body">
 
     <header class="app-header">
-        <a href="/gates" class="logo-link">
+        <a href="/gates/grid" class="logo-link">
             <img src="/static/img/logo.png" alt="Quantum Gates" class="logo">
         </a>
         <h1 class="app-title">Гейты</h1>
@@ -17,7 +17,7 @@
 
     <main class="page-content">
 
-        <form method="get" action="/gates" class="filter-form">
+        <form method="get" action="/gates/grid" class="filter-form">
 
             <input type="text" name="q" value="{{ q }}"
                    placeholder="Поиск по названию гейта…"
@@ -60,11 +60,11 @@
                 <div class="card-body">
                     <h2 class="card-title">{{ gate.title }}</h2>
                     <p class="card-desc">{{ gate.summary or 'Без описания' }}</p>
-                    <a href="/gates/{{ gate.id }}" class="card-cta">
+                    <a href="/gates/feed/{{ gate.id }}" class="card-cta">
                         Добавить в алгоритм <span class="cta-arrow">→</span>
                     </a>
 
-                    <form method="post" action="/gates/{{ gate.id }}/delete"
+                    <form method="post" action="/gates/feed/{{ gate.id }}/delete"
                           class="delete-form">
                         <button type="submit" class="btn-delete">✕ Удалить</button>
                     </form>
@@ -80,9 +80,9 @@
     </main>
 
     <nav class="tabbar">
-        <a href="/gates/1" class="tab">Лента</a>
-        <a href="/add" class="tab">Добавить</a>
-        <a href="/gates" class="tab tab-active">Плитка</a>
+        <a href="/gates/feed/first" class="tab">Лента</a>
+        <a href="/gates/add" class="tab">Добавить</a>
+        <a href="/gates/grid" class="tab tab-active">Плитка</a>
     </nav>
 
 </body>
