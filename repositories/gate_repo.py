@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import select, func
+from sqlalchemy import select, func, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from models.gate import Gate
 from models.like import Like
@@ -54,6 +54,20 @@ async def likes_count(db: AsyncSession, gate_id: int) -> int:
     stmt = select(func.count()).select_from(Like).where(Like.gate_id == gate_id)
     result = await db.execute(stmt)
     return result.scalar_one()
+
+
+async def like_gate(db: AsyncSession, user_id: int, gate_id: int) -> None:
+    """Ставит лайк гейту."""
+    like = Like(user_id=user_id, gate_id=gate_id)
+    db.add(like)
+    await db.commit()
+
+
+async def unlike_gate(db: AsyncSession, user_id: int, gate_id: int) -> None:
+    """Отменяет лайк гейту."""
+    stmt = delete(Like).where(Like.user_id == user_id, Like.gate_id == gate_id)
+    await db.execute(stmt)
+    await db.commit()
 
 
 async def get_draft_for_user(db: AsyncSession, user_id: int):
