@@ -12,7 +12,8 @@ DWA - Development of Web Applications
 - **База данных:** PostgreSQL (asyncpg)
 - **ORM:** SQLAlchemy 2.0 (async)
 - **Миграции:** Alembic
-- **Хранилище файлов:** MinIO
+- **Хранилище файлов:** MinIO (по умолчанию отключено)
+- **Хранилище сессий:** Redis
 - **Схемы:** Pydantic
 
 ## Таблицы БД
@@ -24,7 +25,7 @@ DWA - Development of Web Applications
 | id | INTEGER | Primary Key, Auto Increment |
 | username | VARCHAR(64) | Unique, Not Null |
 | email | VARCHAR(128) | Unique, Not Null |
-| created_at | TIMESTAMP | Not Null, Default: NOW() |
+| password | VARCHAR(128) | Not Null |
 
 ### gates
 
@@ -39,8 +40,6 @@ DWA - Development of Web Applications
 | angle_x | INTEGER | Not Null, Default: 0 |
 | angle_y | INTEGER | Not Null, Default: 0 |
 | creator_id | INTEGER | Foreign Key → users.id, Not Null |
-| created_at | TIMESTAMP | Not Null, Default: NOW() |
-| formed_at | TIMESTAMP | Nullable |
 
 ### likes
 
@@ -49,46 +48,45 @@ DWA - Development of Web Applications
 | id | INTEGER | Primary Key, Auto Increment |
 | user_id | INTEGER | Foreign Key → users.id, Not Null |
 | gate_id | INTEGER | Foreign Key → gates.id, Not Null |
-| created_at | TIMESTAMP | Not Null, Default: NOW() |
 
 **Unique Constraint:** (user_id, gate_id)
 
 ## REST API методы
 
-### Домен услуги (gates)
+### Аутентификация
 
-| Метод | URL | Описание |
-|-------|-----|----------|
-| GET | `/api/gates` | Список опубликованных гейтов с фильтрацией |
-| GET | `/api/gates/feed` | Лента опубликованных гейтов |
-| GET | `/api/gates/draft` | Получение черновика текущего пользователя |
-| POST | `/api/gates` | Добавление нового гейта с файлами |
-| PUT | `/api/gates/{id}/publish` | Публикация гейта (смена статуса) |
-| DELETE | `/api/gates/{id}` | Удаление гейта (soft delete) |
-| POST | `/api/gates/{id}/like` | Поставить/отменить лайк |
+| Метод | URL | Описание | Доступ |
+|-------|-----|----------|--------|
+| POST | `/api/users/register` | Регистрация нового пользователя | Все |
+| POST | `/api/users/login` | Аутентификация (создаёт сессию в Redis) | Все |
+| POST | `/api/users/logout` | Деавторизация (удаляет сессию из Redis) | Все |
 
-### Домен пользователи (users)
+### Гейты
 
-| Метод | URL | Описание |
-|-------|-----|----------|
-| POST | `/api/users/register` | Регистрация нового пользователя |
-| POST | `/api/users/login` | Аутентификация (заглушка для 4-й лабораторной) |
-| POST | `/api/users/logout` | Деавторизация (заглушка для 4-й лабораторной) |
+| Метод | URL | Описание | Доступ |
+|-------|-----|----------|--------|
+| GET | `/api/gates` | Список опубликованных гейтов с фильтрацией | Все |
+| GET | `/api/gates/feed` | Лента опубликованных гейтов | Все |
+| GET | `/api/gates/draft` | Черновик текущего пользователя | Авторизованные |
+| POST | `/api/gates` | Создание гейта с файлами | Авторизованные |
+| PUT | `/api/gates/{id}/publish` | Публикация гейта | Авторизованные |
+| DELETE | `/api/gates/{id}` | Удаление гейта (soft delete) | Авторизованные |
+| POST | `/api/gates/{id}/like` | Поставить/отменить лайк | Авторизованные |
 
-## Функция-singleton
+## Аутентификация
 
-```python
-# core/current_user.py
-@lru_cache(maxsize=1)
-def get_current_user() -> dict:
-    return {"id": 1, "username": "admin", "email": "admin@example.com"}
-```
+- **Тип:** Сессии через Redis
+- **Cookie:** `session_id` (httponly)
+- **TTL сессии:** 24 часа
 
 ## Запуск проекта
 
 ```bash
 # Установка зависимостей
 pip install -r requirements.txt
+
+# Запуск Redis (отдельно)
+redis-server
 
 # Запуск миграций
 alembic upgrade head
@@ -97,16 +95,6 @@ alembic upgrade head
 uvicorn main:app --reload
 ```
 
-## Тестирование
+## Swagger
 
-Тестирование через Insomnia/Postman:
-
-1. GET списка услуг (с фильтром)
-2. Добавить новую услугу с картинкой и видео
-3. Получить поля черновика
-4. Опубликовать услугу
-5. Получить ленту без ид
-6. Получить ленту по ид ?next=true
-7. Поставить лайк
-8. Удалить услугу
-9. Зарегистрировать нового пользователя
+Документация Swagger доступна по адресу: `http://127.0.0.1:8000/docs`

@@ -3,15 +3,14 @@ REST API для работы с пользователями.
 Все методы начинаются с /api/users.
 """
 
-from datetime import datetime
-
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from db.session import get_db
 from models.user import User
 from schemas.user import UserCreate, UserLogin, UserResponse, AuthResponse
+from core.session_storage import create_session, delete_session
 
 router = APIRouter()
 
@@ -35,11 +34,10 @@ async def register_user(
         raise HTTPException(status_code=400, detail="Username or email already exists")
 
     # Создаём нового пользователя
-    # В реальном приложении пароль нужно хешировать
     new_user = User(
         username=user_data.username,
         email=user_data.email,
-        created_at=datetime.utcnow()
+        password=user_data.password
     )
     db.add(new_user)
     await db.commit()
@@ -48,48 +46,64 @@ async def register_user(
     return UserResponse(
         id=new_user.id,
         username=new_user.username,
-        email=new_user.email,
-        created_at=new_user.created_at
+        email=new_user.email
     )
 
 
-@router.post("/api/users/login", response_model=AuthResponse)
+@router.post("/api/users/login")
 async def login_user(
     credentials: UserLogin,
     db: AsyncSession = Depends(get_db),
+    response: Response = None,
 ):
     """
-    POST /api/users/login — аутентификация пользователя (заглушка для 4-й лабораторной).
+    POST /api/users/login — аутентификация пользователя.
+    Создаёт сессию в Redis и устанавливает cookie session_id.
     """
-    # Проверяем, существует ли пользователь
+    # Проверяем пользователя
     stmt = select(User).where(User.username == credentials.username)
     result = await db.execute(stmt)
     user = result.scalar_one_or_none()
 
-    if not user:
+    if not user or user.password != credentials.password:
         raise HTTPException(status_code=401, detail="Invalid username or password")
 
-    # Заглушка: в 4-й лабораторной будет реальная аутентификация
-    return AuthResponse(
-        success=True,
-        message="Login successful (stub for lab 4)",
-        user=UserResponse(
-            id=user.id,
-            username=user.username,
-            email=user.email,
-            created_at=user.created_at
-        )
+    # Создаём сессию в Redis
+    session_id = create_session(
+        user_id=user.id,
+        username=user.username,
+        email=user.email
     )
 
-
-@router.post("/api/users/logout", response_model=AuthResponse)
-async def logout_user():
-    """
-    POST /api/users/logout — деавторизация пользователя (заглушка для 4-й лабораторной).
-    """
-    # Заглушка: в 4-й лабораторной будет реальная деавторизация
-    return AuthResponse(
-        success=True,
-        message="Logout successful (stub for lab 4)",
-        user=None
+    # Устанавливаем cookie
+    response = Response(content="")
+    response.set_cookie(
+        key="session_id",
+        value=session_id,
+        httponly=True,
+        max_age=86400
     )
+    response.status_code = 200
+    response.body = b'{"success": true, "message": "Login successful"}'
+    response.headers["content-type"] = "application/json"
+    return response
+
+
+@router.post("/api/users/logout")
+async def logout_user(
+    session_id: str = None,
+    response: Response = None,
+):
+    """
+    POST /api/users/logout — деавторизация пользователя.
+    Удаляет сессию из Redis и очищает cookie.
+    """
+    if session_id:
+        delete_session(session_id)
+
+    response = Response(content="")
+    response.status_code = 200
+    response.body = b'{"success": true, "message": "Logout successful"}'
+    response.headers["content-type"] = "application/json"
+    response.delete_cookie(key="session_id")
+    return response

@@ -71,7 +71,13 @@ async def unlike_gate(db: AsyncSession, user_id: int, gate_id: int) -> None:
 
 
 async def get_draft_for_user(db: AsyncSession, user_id: int):
-    stmt = select(Gate).where(Gate.creator_id == user_id, Gate.status == "draft")
+    """Получает последний гейт пользователя (черновик или любой другой)."""
+    stmt = (
+        select(Gate)
+        .where(Gate.creator_id == user_id)
+        .order_by(Gate.id.desc())
+        .limit(1)
+    )
     result = await db.execute(stmt)
     return result.scalar_one_or_none()
 
@@ -110,3 +116,11 @@ async def publish_draft(db: AsyncSession, gate_id: int, summary: str,
     await db.commit()
     await db.refresh(gate)
     return gate
+
+"""
+class Settings(BaseSettings):
+    # ... другие настройки ...
+    
+    MINIO_URL: str = "http://127.0.0.1:9000/quantum-operations"
+    USE_MINIO: bool = False  # ← По умолчанию НЕ MinIO, а локальные файлы
+"""

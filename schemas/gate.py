@@ -46,8 +46,6 @@ class GateResponse(BaseModel):
     angle_x: int
     angle_y: int
     creator_id: int
-    created_at: datetime
-    formed_at: Optional[datetime] = None
     is_creator: bool = False  # True, если создатель услуги совпадает с текущим пользователем
 
     class Config:

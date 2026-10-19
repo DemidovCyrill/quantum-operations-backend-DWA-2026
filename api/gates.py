@@ -15,6 +15,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from core.config import settings
 from core.current_user import get_current_user_id
 from core.minio_client import upload_file_from_bytes, delete_file, get_file_url
+from core.auth import get_current_user_required, get_current_user_optional
 from db.session import get_db
 from repositories import gate_repo, raw_sql
 from schemas.gate import (
@@ -25,6 +26,7 @@ from schemas.gate import (
     LikeRequest,
     LikeResponse
 )
+from models.user import User
 
 router = APIRouter()
 
@@ -43,7 +45,13 @@ def generate_filename(original_filename: str) -> str:
     return f"{uuid.uuid4().hex}{ext}"
 
 
-@router.get("/api/gates", response_model=GateListResponse)
+@router.get(
+    "/api/gates",
+    response_model=GateListResponse,
+    summary="Список гейтов",
+    description="Получить список опубликованных гейтов с фильтрацией",
+    tags=["Гейты"]
+)
 async def list_gates(
     q: str = Query("", max_length=100, description="Поиск по названию"),
     angle_x_min: int = Query(0, ge=0, le=180),
@@ -96,8 +104,6 @@ async def list_gates(
             "angle_x": gate.angle_x,
             "angle_y": gate.angle_y,
             "creator_id": gate.creator_id,
-            "created_at": gate.created_at,
-            "formed_at": gate.formed_at,
             "is_creator": gate.creator_id == current_user_id
         }
         response_items.append(GateResponse(**gate_dict))
@@ -105,7 +111,12 @@ async def list_gates(
     return GateListResponse(items=response_items, total=total)
 
 
-@router.get("/api/gates/feed")
+@router.get(
+    "/api/gates/feed",
+    summary="Лента гейтов",
+    description="Получить ленту опубликованных гейтов",
+    tags=["Гейты"]
+)
 async def feed_gates(
     db: AsyncSession = Depends(get_db),
 ):
@@ -128,8 +139,6 @@ async def feed_gates(
             "angle_x": gate.angle_x,
             "angle_y": gate.angle_y,
             "creator_id": gate.creator_id,
-            "created_at": gate.created_at,
-            "formed_at": gate.formed_at,
             "is_creator": gate.creator_id == current_user_id
         }
         response_items.append(GateResponse(**gate_dict))
@@ -137,7 +146,12 @@ async def feed_gates(
     return GateListResponse(items=response_items, total=len(response_items))
 
 
-@router.get("/api/gates/draft")
+@router.get(
+    "/api/gates/draft",
+    summary="Черновик гейта",
+    description="Получить черновик текущего пользователя",
+    tags=["Гейты"]
+)
 async def get_draft(
     db: AsyncSession = Depends(get_db),
 ):
@@ -161,16 +175,21 @@ async def get_draft(
         angle_x=draft.angle_x,
         angle_y=draft.angle_y,
         creator_id=draft.creator_id,
-        created_at=draft.created_at,
-        formed_at=draft.formed_at,
         is_creator=True
     )
 
 
-@router.post("/api/gates", status_code=201)
+@router.post(
+    "/api/gates",
+    status_code=201,
+    summary="Создание гейта",
+    description="Создать новый гейт (черновик) с файлами",
+    tags=["Гейты"]
+)
 async def create_gate(
     request: Request,
     db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user_required),
     image: Optional[UploadFile] = File(None),
     video: Optional[UploadFile] = File(None),
 ):
@@ -179,7 +198,7 @@ async def create_gate(
     Файлы изображения и видео загружаются в MinIO.
     Названия файлов генерируются на латинице.
     """
-    current_user_id = get_current_user_id()
+    current_user_id = current_user.id
 
     # Получаем title из query parameters или form data
     title = request.query_params.get("title", "")
@@ -228,24 +247,28 @@ async def create_gate(
         angle_x=gate.angle_x,
         angle_y=gate.angle_y,
         creator_id=gate.creator_id,
-        created_at=gate.created_at,
-        formed_at=gate.formed_at,
         is_creator=True
     )
 
 
-@router.put("/api/gates/{gate_id}/publish")
+@router.put(
+    "/api/gates/{gate_id}/publish",
+    summary="Публикация гейта",
+    description="Опубликовать черновик гейта",
+    tags=["Гейты"]
+)
 async def publish_gate(
     gate_id: int,
     request: Request,
     db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user_required),
     image: Optional[UploadFile] = File(None),
     video: Optional[UploadFile] = File(None),
 ):
     """
     PUT /api/gates/{gate_id}/publish — публикация гейта (смена статуса).
     """
-    current_user_id = get_current_user_id()
+    current_user_id = current_user.id
 
     # Получаем данные из query parameters или form data
     summary = request.query_params.get("summary", "")
@@ -307,22 +330,26 @@ async def publish_gate(
         angle_x=published.angle_x,
         angle_y=published.angle_y,
         creator_id=published.creator_id,
-        created_at=published.created_at,
-        formed_at=published.formed_at,
         is_creator=True
     )
 
 
-@router.delete("/api/gates/{gate_id}")
+@router.delete(
+    "/api/gates/{gate_id}",
+    summary="Удаление гейта",
+    description="Удалить гейт (soft delete)",
+    tags=["Гейты"]
+)
 async def delete_gate(
     gate_id: int,
     db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user_required),
 ):
     """
     DELETE /api/gates/{gate_id} — удаление гейта (soft delete).
     Только услуги этого пользователя.
     """
-    current_user_id = get_current_user_id()
+    current_user_id = current_user.id
 
     # Проверяем, что гейт существует, опубликован и принадлежит текущему пользователю
     gate = await gate_repo.get_published(db, gate_id)
@@ -339,34 +366,32 @@ async def delete_gate(
     return {"success": True, "message": "Gate deleted"}
 
 
-@router.post("/api/gates/{gate_id}/like")
+@router.post(
+    "/api/gates/{gate_id}/like",
+    summary="Лайк гейта",
+    description="Поставить или отменить лайк гейту",
+    tags=["Гейты"]
+)
 async def like_gate(
     gate_id: int,
     value: int = Form(..., ge=0, le=1),
     db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user_required),
 ):
-    """
-    POST /api/gates/{gate_id}/like — поставить/отменить лайк.
-    value: 0 — отменить лайк, 1 — поставить лайк.
-    """
-    current_user_id = get_current_user_id()
+    current_user_id = current_user.id
 
-    # Проверяем, что гейт существует и опубликован
     gate = await gate_repo.get_published(db, gate_id)
     if not gate:
         raise HTTPException(status_code=404, detail="Gate not found")
 
-    # Проверяем, не пытается ли пользователь лайкнуть свой гейт
     if gate.creator_id == current_user_id:
         raise HTTPException(status_code=400, detail="You cannot like your own gate")
 
-    # Ставим или отменяем лайк
     if value == 1:
         await gate_repo.like_gate(db, current_user_id, gate_id)
     else:
         await gate_repo.unlike_gate(db, current_user_id, gate_id)
 
-    # Получаем обновлённое количество лайков
     likes_count = await gate_repo.likes_count(db, gate_id)
 
     return LikeResponse(

@@ -12,6 +12,9 @@ class Settings(BaseSettings):
     USE_MINIO: bool = False
     CURRENT_USER_ID: int = 1
 
+    REDIS_HOST: str = "127.0.0.1"
+    REDIS_PORT: int = 6379
+
     @property
     def DATABASE_URL(self) -> str:
         return (
