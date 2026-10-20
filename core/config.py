@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     CURRENT_USER_ID: int = 1
 
     REDIS_HOST: str = "127.0.0.1"
-    REDIS_PORT: int = 6379
+    REDIS_PORT: int = 6380
 
     @property
     def DATABASE_URL(self) -> str:

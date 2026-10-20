@@ -15,7 +15,14 @@ from core.session_storage import create_session, delete_session
 router = APIRouter()
 
 
-@router.post("/api/users/register", response_model=UserResponse, status_code=201)
+@router.post(
+    "/api/users/register",
+    response_model=UserResponse,
+    status_code=201,
+    summary="Регистрация",
+    description="Регистрация нового пользователя",
+    tags=["Пользователи"]
+)
 async def register_user(
     user_data: UserCreate,
     db: AsyncSession = Depends(get_db),
@@ -50,7 +57,12 @@ async def register_user(
     )
 
 
-@router.post("/api/users/login")
+@router.post(
+    "/api/users/login",
+    summary="Аутентификация",
+    description="Аутентификация пользователя. Создаёт сессию в Redis и устанавливает cookie session_id.",
+    tags=["Пользователи"]
+)
 async def login_user(
     credentials: UserLogin,
     db: AsyncSession = Depends(get_db),
@@ -89,7 +101,12 @@ async def login_user(
     return response
 
 
-@router.post("/api/users/logout")
+@router.post(
+    "/api/users/logout",
+    summary="Деавторизация",
+    description="Деавторизация пользователя. Удаляет сессию из Redis и очищает cookie.",
+    tags=["Пользователи"]
+)
 async def logout_user(
     session_id: str = None,
     response: Response = None,

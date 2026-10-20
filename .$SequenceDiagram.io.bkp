@@ -1,0 +1,157 @@
+<mxfile host="app.diagrams.net" modified="2026-10-20T00:00:00.000Z" agent="OpenCode" version="24.0.0">
+  <diagram name="Sequence Diagram" id="sequence-diagram">
+    <mxGraphModel dx="1000" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1000" pageHeight="800" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="title" value="SD Диаграмма последовательности" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="20" y="10" width="300" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Lifelines -->
+        <mxCell id="lifeline-frontend" value="Фронтенд" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontStyle=1;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="80" y="50" width="100" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-frontend-line" value="" style="endArrow=none;dashed=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="lifeline-frontend">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="130" y="750" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="lifeline-users" value=": Домен users" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontStyle=1;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="350" y="50" width="120" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-users-line" value="" style="endArrow=none;dashed=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="lifeline-users">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="410" y="750" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="lifeline-gates" value=": Домен gates" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontStyle=1;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="650" y="50" width="120" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-gates-line" value="" style="endArrow=none;dashed=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="lifeline-gates">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="750" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Messages -->
+        <!-- 1. Login -->
+        <mxCell id="msg1" value="1 : POST /api/users/login(login, password)" style="endArrow=block;endFill=1;html=1;verticalAlign=bottom;fontSize=10;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="130" y="100" as="sourcePoint" />
+            <mxPoint x="410" y="100" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg2" value="2 : 200 JSON(access_token=JWT, token_type=Bearer, user_id, role, expires_in)" style="endArrow=open;endFill=0;dashed=1;html=1;verticalAlign=bottom;fontSize=10;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="410" y="130" as="sourcePoint" />
+            <mxPoint x="130" y="130" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 3. GET gates -->
+        <mxCell id="msg3" value="3 : GET /api/gates?q&amp;angle_x_min&amp;angle_x_max&amp;angle_y_min&amp;angle_y_max (Authorization=Bearer JWT)" style="endArrow=block;endFill=1;html=1;verticalAlign=bottom;fontSize=9;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="130" y="170" as="sourcePoint" />
+            <mxPoint x="710" y="170" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg4" value="4 : 200 JSON(gates[], total)" style="endArrow=open;endFill=0;dashed=1;html=1;verticalAlign=bottom;fontSize=10;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="200" as="sourcePoint" />
+            <mxPoint x="130" y="200" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 5. POST gate -->
+        <mxCell id="msg5" value="5 : POST /api/gates(title, image=файл, video=файл, Authorization=Bearer JWT; multipart/form-data)" style="endArrow=block;endFill=1;html=1;verticalAlign=bottom;fontSize=9;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="130" y="240" as="sourcePoint" />
+            <mxPoint x="710" y="240" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg6" value="6 : 201 JSON(gate_id=draft_id, status=черновик, creator_id=user_id, image_name, video_name)" style="endArrow=open;endFill=0;dashed=1;html=1;verticalAlign=bottom;fontSize=9;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="270" as="sourcePoint" />
+            <mxPoint x="130" y="270" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 7. GET draft -->
+        <mxCell id="msg7" value="7 : GET /api/gates/draft(Authorization=Bearer JWT)" style="endArrow=block;endFill=1;html=1;verticalAlign=bottom;fontSize=10;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="130" y="310" as="sourcePoint" />
+            <mxPoint x="710" y="310" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg8" value="8 : 200 JSON(gate_id=draft_id, name, short_description, image_name, video_name, status=черновик)" style="endArrow=open;endFill=0;dashed=1;html=1;verticalAlign=bottom;fontSize=9;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="340" as="sourcePoint" />
+            <mxPoint x="130" y="340" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 9. PUT publish -->
+        <mxCell id="msg9" value="9 : PUT /api/gates/{id}/publish(id=draft_id, name, short_description, angle_x, angle_y, Authorization=Bearer JWT)" style="endArrow=block;endFill=1;html=1;verticalAlign=bottom;fontSize=9;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="130" y="380" as="sourcePoint" />
+            <mxPoint x="710" y="380" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg10" value="10 : 200 JSON(gate_id=draft_id, status=опубликован, name, short_description, angle_x, angle_y, formed_at)" style="endArrow=open;endFill=0;dashed=1;html=1;verticalAlign=bottom;fontSize=9;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="410" as="sourcePoint" />
+            <mxPoint x="130" y="410" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 11. GET feed -->
+        <mxCell id="msg11" value="11 : GET /api/gates/feed(Authorization=Bearer JWT)" style="endArrow=block;endFill=1;html=1;verticalAlign=bottom;fontSize=10;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="130" y="450" as="sourcePoint" />
+            <mxPoint x="710" y="450" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg12" value="12 : 200 JSON(gates[], total)" style="endArrow=open;endFill=0;dashed=1;html=1;verticalAlign=bottom;fontSize=10;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="480" as="sourcePoint" />
+            <mxPoint x="130" y="480" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 13. GET feed next -->
+        <mxCell id="msg13" value="13 : GET /api/gates/feed/{id}?next=true(id=feed_id, next=true, Authorization=Bearer JWT)" style="endArrow=block;endFill=1;html=1;verticalAlign=bottom;fontSize=9;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="130" y="520" as="sourcePoint" />
+            <mxPoint x="710" y="520" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg14" value="14 : 200 JSON(gate_id=next_id, name, video_url, is_liked, like_count)" style="endArrow=open;endFill=0;dashed=1;html=1;verticalAlign=bottom;fontSize=9;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="550" as="sourcePoint" />
+            <mxPoint x="130" y="550" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 15. POST like -->
+        <mxCell id="msg15" value="15 : POST /api/gates/{id}/likes(id=next_id, value=1, Authorization=Bearer JWT)" style="endArrow=block;endFill=1;html=1;verticalAlign=bottom;fontSize=9;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="130" y="590" as="sourcePoint" />
+            <mxPoint x="710" y="590" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg16" value="16 : 200 JSON(gate_id=next_id, is_liked=1, like_count)" style="endArrow=open;endFill=0;dashed=1;html=1;verticalAlign=bottom;fontSize=9;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="620" as="sourcePoint" />
+            <mxPoint x="130" y="620" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
