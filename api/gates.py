@@ -268,9 +268,13 @@ async def publish_gate(
     """
     PUT /api/gates/{gate_id}/publish — публикация гейта (смена статуса).
     """
+    # Сначала проверяем авторизацию
+    if not current_user:
+        raise HTTPException(status_code=401, detail="Authentication required")
+
     current_user_id = current_user.id
 
-    # Получаем данные из query parameters или form data
+    # Получаем данные из query parameters 或 form data
     summary = request.query_params.get("summary", "")
     angle_x = request.query_params.get("angle_x", "0")
     angle_y = request.query_params.get("angle_y", "0")
