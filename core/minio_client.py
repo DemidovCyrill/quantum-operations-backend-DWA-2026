@@ -3,13 +3,13 @@
 В лабораторной 3 используется для хранения файлов изображений и видео.
 """
 
+import json
 import os
 from pathlib import Path
 from typing import Optional
 
 from minio import Minio
 from minio.error import S3Error
-
 
 # Конфигурация MinIO
 MINIO_ENDPOINT = os.getenv("MINIO_ENDPOINT", "127.0.0.1:9000")
@@ -30,9 +30,26 @@ def get_minio_client() -> Minio:
 
 
 def ensure_bucket_exists(client: Minio, bucket_name: str = MINIO_BUCKET) -> None:
-    """Создаёт бакет, если он не существует."""
+    """Создаёт бакет, если он не существует, и разрешает чтение объектов (для SPA)."""
     if not client.bucket_exists(bucket_name):
         client.make_bucket(bucket_name)
+
+    policy = {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Effect": "Allow",
+                "Principal": {"AWS": ["*"]},
+                "Action": ["s3:GetObject"],
+                "Resource": [f"arn:aws:s3:::{bucket_name}/*"],
+            }
+        ],
+    }
+    try:
+        client.set_bucket_policy(bucket_name, json.dumps(policy))
+    except S3Error:
+        # Политика не критична для загрузки; при ошибке продолжаем работу.
+        pass
 
 
 def upload_file(

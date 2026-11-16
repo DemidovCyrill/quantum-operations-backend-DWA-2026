@@ -51,6 +51,25 @@ DWA - Development of Web Applications
 
 **Unique Constraint:** (user_id, gate_id)
 
+### attributes
+
+| Поле | Тип | Описание |
+|------|-----|----------|
+| id | INTEGER | Primary Key, Auto Increment |
+| name | VARCHAR(128) | Unique, Not Null — наименование характеристики |
+
+### gate_attributes
+
+Вертикальная таблица значений атрибутов (m-m между gates и attributes).
+
+| Поле | Тип | Описание |
+|------|-----|----------|
+| gate_id | INTEGER | PK, Foreign Key → gates.id, on delete cascade |
+| attribute_id | INTEGER | PK, Foreign Key → attributes.id, on delete cascade |
+| value | VARCHAR(255) | Not Null — значение характеристики |
+
+**Primary Key:** (gate_id, attribute_id)
+
 ## REST API методы
 
 ### Аутентификация
@@ -60,6 +79,7 @@ DWA - Development of Web Applications
 | POST | `/api/users/register` | Регистрация нового пользователя | Все |
 | POST | `/api/users/login` | Аутентификация (создаёт сессию в Redis) | Все |
 | POST | `/api/users/logout` | Деавторизация (удаляет сессию из Redis) | Все |
+| GET | `/api/users/me` | Текущий пользователь по cookie | Авторизованные |
 
 ### Гейты
 
@@ -67,11 +87,20 @@ DWA - Development of Web Applications
 |-------|-----|----------|--------|
 | GET | `/api/gates` | Список опубликованных гейтов с фильтрацией | Все |
 | GET | `/api/gates/feed` | Лента опубликованных гейтов | Все |
+| GET | `/api/gates/{id}` | Карточка услуги со списком атрибутов | Все |
 | GET | `/api/gates/draft` | Черновик текущего пользователя | Авторизованные |
 | POST | `/api/gates` | Создание гейта с файлами | Авторизованные |
 | PUT | `/api/gates/{id}/publish` | Публикация гейта | Авторизованные |
+| PUT | `/api/gates/{id}/attributes` | Сохранение набора атрибутов | Авторизованные |
 | DELETE | `/api/gates/{id}` | Удаление гейта (soft delete) | Авторизованные |
-| POST | `/api/gates/{id}/like` | Поставить/отменить лайк | Авторизованные |
+| POST | `/api/gates/{id}/likes` | Поставить/отменить лайк | Авторизованные |
+| GET | `/api/attributes` | Справочник наименований атрибутов | Все |
+
+## Lua-скрипт сессий
+
+`lua/session_lua.lua` — рабочий скрипт Redis (`EVALSHA`), выполняет операции
+`create`, `get`, `delete`, `exists` для ключа `session:{session_id}` с TTL 24 часа.
+Загружается в `core/session_storage.py` через `register_script`.
 
 ## Аутентификация
 

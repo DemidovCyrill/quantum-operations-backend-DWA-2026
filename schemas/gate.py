@@ -35,6 +35,33 @@ class GatePublish(BaseModel):
     angle_y: int = Field(0, ge=0, le=180)
 
 
+class AttributeValue(BaseModel):
+    """Наименование и значение атрибута услуги."""
+    id: int
+    name: str
+    value: str = ""
+
+
+class AttributeInput(BaseModel):
+    """Входная пара «название — значение» для сохранения атрибутов."""
+    name: str = Field(..., min_length=1, max_length=128)
+    value: str = Field("", max_length=255)
+
+
+class GateAttributesUpdate(BaseModel):
+    """Полный набор атрибутов услуги (m-m)."""
+    attributes: list[AttributeInput] = Field(default_factory=list)
+
+
+class AttributeResponse(BaseModel):
+    """Элемент справочника атрибутов."""
+    id: int
+    name: str
+
+    class Config:
+        from_attributes = True
+
+
 class GateResponse(BaseModel):
     """Схема для ответа с данными гейта."""
     id: int
@@ -46,7 +73,13 @@ class GateResponse(BaseModel):
     angle_x: int
     angle_y: int
     creator_id: int
+    creator_name: str = ""
     is_creator: bool = False  # True, если создатель услуги совпадает с текущим пользователем
+    likes_count: int = 0
+    is_liked: bool = False
+    attributes: list[AttributeValue] = Field(default_factory=list)
+    created_at: Optional[datetime] = None
+    formed_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True

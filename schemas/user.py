@@ -5,7 +5,7 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel, Field
 
 
 class UserBase(BaseModel):
@@ -16,7 +16,7 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     """Схема для регистрации пользователя."""
-    password: str = Field(..., min_length=6)
+    password: str = Field(..., min_length=5)
 
 
 class UserLogin(BaseModel):
@@ -30,7 +30,7 @@ class UserResponse(BaseModel):
     id: int
     username: str
     email: str
-    created_at: datetime
+    created_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True

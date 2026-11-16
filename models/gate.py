@@ -22,6 +22,11 @@ class Gate(Base):
 
     creator = relationship("User", back_populates="gates")
     likes = relationship("Like", back_populates="gate")
+    attribute_values = relationship(
+        "GateAttribute",
+        back_populates="gate",
+        cascade="all, delete-orphan",
+    )
 
     __table_args__ = (
         CheckConstraint("status IN ('draft','published','deleted')",

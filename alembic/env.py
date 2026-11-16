@@ -12,9 +12,7 @@ from alembic import context
 
 from core.config import settings
 from db.base import Base
-from models.user import User
-from models.gate import Gate
-from models.like import Like
+import models  # noqa: F401  — регистрирует все модели, включая атрибуты
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
