@@ -114,8 +114,12 @@ DWA - Development of Web Applications
 # Установка зависимостей
 pip install -r requirements.txt
 
-# Запуск Redis (отдельно)
-redis-server
+# PostgreSQL (Docker, порт 5433)
+docker compose up -d postgres
+
+# Redis: на Windows используется служба Memurai (порт 6380).
+# Если Memurai нет и образ redis:7 доступен:
+docker compose --profile docker-redis up -d redis
 
 # Запуск миграций
 alembic upgrade head

@@ -28,6 +28,7 @@ services:
   redis:
     image: redis:7
     container_name: gates_redis
+    profiles: ["docker-redis"]
     ports:
       - "6380:6379"
 
